@@ -1,0 +1,67 @@
+%%% Código para cálculo do tempo de duração da atividade
+%%% usa linguagem "lua", que não domino.
+%%% Feito com ajuda do DeepSeek
+
+\begin{luacode}
+function duracao(inicio, hora_inicio, fim, hora_fim)
+    -- Função para analisar data e hora
+    local function parse_datetime(date_str, time_str)
+        local day, month, year = date_str:match("(%d+)/(%d+)/(%d+)")
+        local hour, minute, second = time_str:match("(%d+):(%d+):(%d+)")
+        
+        return os.time({
+            year = tonumber(year),
+            month = tonumber(month),
+            day = tonumber(day),
+            hour = tonumber(hour),
+            min = tonumber(minute),
+            sec = tonumber(second)
+        })
+    end
+    
+    -- Se fim for vazio, usar início
+    if fim == "" then
+        fim = inicio
+    end
+    
+    local t0 = parse_datetime(inicio, hora_inicio)
+    local t1 = parse_datetime(fim, hora_fim)
+    
+    local diff_seconds = os.difftime(t1, t0)
+    
+    -- Calcular dias, horas e minutos
+    local dias = math.floor(diff_seconds / 86400)  -- 86400 segundos em um dia
+    local segundos_resto = diff_seconds % 86400
+    local horas = math.floor(segundos_resto / 3600)
+    local minutos = math.floor((segundos_resto % 3600) / 60)
+    
+    -- Formatar a saída de acordo com a duração
+    if dias == 0 then
+        -- Menos de 1 dia: mostrar horas e minutos
+        if minutos > 0 then
+            -- Verificar plurais para horas
+            local hora_texto = (horas == 1) and "hora" or "horas"
+            -- Verificar plurais para minutos
+            local minuto_texto = (minutos == 1) and "minuto" or "minutos"
+            return string.format("%d %s e %d %s", horas, hora_texto, minutos, minuto_texto)
+        else
+            -- Apenas horas
+            local hora_texto = (horas == 1) and "hora" or "horas"
+            return string.format("%d %s", horas, hora_texto)
+        end
+    else
+        -- 1 dia ou mais: mostrar dias e horas
+        if horas > 0 then
+            -- Verificar plurais para dias
+            local dia_texto = (dias == 1) and "dia" or "dias"
+            -- Verificar plurais para horas
+            local hora_texto = (horas == 1) and "hora" or "horas"
+            return string.format("%d %s e %d %s", dias, dia_texto, horas, hora_texto)
+        else
+            -- Apenas dias
+            local dia_texto = (dias == 1) and "dia" or "dias"
+            return string.format("%d %s", dias, dia_texto)
+        end
+    end
+end
+\end{luacode}

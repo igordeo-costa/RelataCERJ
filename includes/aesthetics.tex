@@ -1,0 +1,61 @@
+\setlength\parindent{24pt}
+
+\usepackage{fancyhdr}
+
+\fancypagestyle{fancy}{
+	%Headers
+	\fancyhead[L]{}
+	\fancyhead[C]{}
+	\fancyhead[R]{}
+\renewcommand{\headrulewidth}{0pt}
+	%Footers
+	\fancyfoot[L]{\footnotesize Diretoria Técnica do CERJ -- Relatório de Excursões}
+	\fancyfoot[C]{}
+	\fancyfoot[R]{\footnotesize Relatório Nº: 2026.\therelatorio}
+\renewcommand{\footrulewidth}{0.0pt}
+}
+\headheight=0pt
+\footskip=35pt
+
+\makeatletter
+\let\ps@plain\ps@fancy
+\makeatother
+
+\pagestyle{fancy}
+
+% Colors for links (customizable)
+\usepackage{xcolor}
+\definecolor{linkblue}{HTML}{0050A4}   % deep but non-aggressive blue
+\definecolor{citegreen}{HTML}{207A39}  % elegant green
+\definecolor{urlmagenta}{HTML}{8B1C62} % strong, readable purple
+
+% Hyperref (load LAST)
+\usepackage[
+    unicode=true,
+    pdfencoding=auto,
+    pdfpagelabels=true,
+    psdextra,                  % safer unicode bookmarks
+    bookmarks=true,
+    bookmarksnumbered=true,
+    hyperfootnotes=true,
+    breaklinks=true,
+    pdfborder={0 0 0},         % no ugly boxes
+    linktoc=all,               % TOC entries clickable
+    colorlinks=true,
+    linkcolor=linkblue,
+    citecolor=citegreen,
+    urlcolor=urlmagenta,
+    filecolor=black,
+    pdfstartview=FitV,         % nice initial zoom
+    pdfpagemode=UseNone,       % no sidebar by default
+    pdfhighlight=/I,           % “invert” highlight on click
+]{hyperref}
+
+% METADATA (automatic from commands)
+\hypersetup{
+    pdftitle    = {Relatório de Excursões Oficiais -- CERJ 2026},
+    pdfauthor   = {Diretoria Técnica do CERJ},
+    pdfsubject  = {Formulário Institucional},
+    pdfkeywords = {Relatório, Cadastro, Formulário},
+    pdfcreator  = {LuaLaTeX with hyperref},
+}

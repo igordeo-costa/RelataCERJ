@@ -1,0 +1,137 @@
+\documentclass[a4paper,11pt]{article}
+\newif\ifrelatoriocomplexo % Tipo de relatório, normal ou confidencial
+\relatoriocomplexofalse    % Para gerar relatório simples (false) ou complexo (true)
+
+\usepackage{fontspec}
+\setmainfont{IBM Plex Sans} 
+\usepackage{microtype}
+\usepackage{polyglossia}
+\setdefaultlanguage[variant=brazilian]{portuguese}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{eso-pic}
+\usepackage{ragged2e}
+\usepackage{datatool}
+\usepackage{expl3}
+\usepackage{luacode}
+\usepackage{xstring}
+\usepackage{xcolor}
+\DTLloaddb{tabela}{data/DadosBrutos.csv}
+
+%%% Includes
+\input{includes/calc_participantes}
+\input{includes/calc_duracao}
+\input{includes/aesthetics}
+
+%%% -----------------------------------------------------------------------
+%%% Comando para cálculo de duração da atividade
+\newcommand{\calcularDuracao}[4]{%
+    \directlua{tex.sprint(duracao("#1", "#2", "#3", "#4"))}%
+}
+
+%%% Comando para apresentar a hora no formato hh:mm e não hh:mm:ss
+\newcommand{\formatarHora}[1]{%
+  \StrBefore{#1}{:}:%
+  \StrBetween[1,2]{#1}{:}{:}%
+}
+%%% -----------------------------------------------------------------------
+
+%%% Contadores
+\newcounter{relatorio}
+\setcounter{relatorio}{1}
+
+%%% O documento
+\begin{document}
+\frenchspacing
+
+\DTLforeach{tabela}{
+  \excursao=4,
+  \local=12,
+  \guia=2, \segundoGuia=15,
+  \auxiliar=3,
+  \tipo=5,
+  \inicio=6, \fim=7,
+  \horaInicio=8, \horaFim=14,
+  \clima=9,
+  \listaParticipantes=10,
+  \observacoes=11,
+  \confidencial=16,
+  \relator=13, \dataRelato=1}{
+
+  \AddToShipoutPictureBG*{%
+    \AtPageUpperLeft{%
+      \put(\LenToUnit{\paperwidth - 5.5cm}, -4.5cm){%
+        \includegraphics[width=3cm]{img/logo.png}%
+      }%
+    }%
+  }
+
+  \section*{\excursao}
+  \vspace{-0.8\baselineskip}
+    \DTLifstringeq{\fim}{} % Data e hora de início e fim da atividade
+  		{\inicio, de \formatarHora{\horaInicio}\ até \formatarHora{\horaFim}}
+  	{
+    		\DTLifstringeq{\inicio}{\fim}
+      			{\inicio, de \formatarHora{\horaInicio}\ até \formatarHora{\horaFim}}
+      			{de \inicio, às \formatarHora{\horaInicio} \\ até \fim, às \formatarHora{\horaFim}}
+  	} \\
+
+%%% Marcação de relatório confidencial em vermelho!
+\ifrelatoriocomplexo
+\noindent\textbf{\textcolor{red}{CONFIDENCIAL!}} \\
+\textcolor{red}{Este relatório contém informações críticas e/ou sensíveis! \\ Leitura exclusiva da Diretoria Técnica.}
+\fi
+
+\section*{\null}
+  \vspace{-2\baselineskip}  
+  \begin{tabular}{@{} l p{12cm} @{}}
+    \textbf{Local:} 		& \local \\
+    \textbf{Categoria:} 	& \tipo \\
+    \textbf{Clima:} 		& \clima \\
+    \textbf{Duração:} 		& \calcularDuracao{\inicio}{\horaInicio}{\fim}{\horaFim} \\
+    \textbf{Guia(s):} 		& \DTLifstringeq{\segundoGuia}{}% trata da exibição de um segundo guia na atividade
+  						{\guia}%
+  						{\guia\ e\ \segundoGuia} \\
+    \textbf{Auxiliar(es):} 	& \auxiliar \\
+    \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes} \\
+    				& \listaParticipantes \\
+  \end{tabular}
+
+% Observações e relato do guia sobre a excursão
+\subsubsection*{Relato, Observações e outros Comentários:}
+
+  \begin{tabular}{@{} l p{15cm} @{}}
+    & \observacoes \\
+  \end{tabular}
+
+% Observações críticas e ou sensíveis sobre a excursão
+% Gerar essa seção apenas para apreciação do DT quando necessário
+\ifrelatoriocomplexo
+\subsubsection*{Observações críticas e/ou sensíveis sobre a excursão:}
+	
+	\begin{tabular}{@{} l p{15cm} @{}}
+	 		& \edef\confidencialtmp{\confidencial} % Normaliza a coluna do .csv se estiver com espaço e não vazia de fato
+	 			\DTLifstringeq{\confidencialtmp}{}
+  					{\textcolor{red}{Não há informações críticas ou sensíveis neste relatório!}}
+  					{\textcolor{red}{\confidencial}} \\
+  	\end{tabular}
+\fi
+
+\subsubsection*{\null}
+ \begin{tabular}{@{} l p{15cm} @{}}
+    \textbf{Relatório enviado por:} & \relator\ em \dataRelato \\
+  \end{tabular}
+
+  \vfill
+
+  \pagebreak
+  \stepcounter{relatorio}
+}
+
+\end{document}
+
+% Local Variables:
+% jinx-languages: "pt_BR"
+% End:

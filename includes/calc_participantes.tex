@@ -1,0 +1,25 @@
+%%% ----------------------------------------------------
+%%% Contar participantes a partir da lista de nomes
+%%% ChatGPT que fez pra mim ;)
+\ExplSyntaxOn
+
+\NewDocumentCommand{\ContaParticipantes}{m}
+ {
+   \__conta_participantes:n { #1 }
+ }
+
+\cs_new_protected:Npn \__conta_participantes:n #1
+ {
+   % remove aspas duplas
+   \tl_set:Nn \l_tmpa_tl { #1 }
+   \tl_replace_all:Nnn \l_tmpa_tl { " } { }
+
+   % cria uma comma list a partir do texto (com expansão!)
+   \clist_set:Nx \l_tmpa_clist { \l_tmpa_tl }
+
+   % conta os elementos
+   \int_eval:n { \clist_count:N \l_tmpa_clist }
+ }
+
+\ExplSyntaxOff
+%%% ----------------------------------------------------
