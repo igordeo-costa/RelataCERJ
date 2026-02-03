@@ -36,6 +36,14 @@
   \StrBefore{#1}{:}:%
   \StrBetween[1,2]{#1}{:}{:}%
 }
+
+%%% Como para exibição dos participantes empilhados no tabular
+\newcommand{\ParticipantesEmColuna}[1]{%
+  \parbox[t]{\linewidth}{%
+    \StrSubstitute{#1}{, }{\\}%
+  }%
+}
+
 %%% -----------------------------------------------------------------------
 
 %%% Capa do documento
@@ -120,10 +128,10 @@
   						{\guia}%
   						{\guia\ e\ \segundoGuia} \\
     \textbf{Auxiliar(es):} 	& \auxiliar \\
-    \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes} \\
-    				& \listaParticipantes \\
+     \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes} \\
+                            	& \ParticipantesEmColuna{\listaParticipantes} \\
   \end{tabular}
-
+  
 % Observações e relato do guia sobre a excursão
 \subsubsection*{Relato, Observações e outros Comentários:}
 
