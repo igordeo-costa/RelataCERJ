@@ -38,13 +38,37 @@
 }
 %%% -----------------------------------------------------------------------
 
+%%% Capa do documento
+\newcommand{\TituloRelatorio}{Relatório de Excursões Oficiais}
+\newcommand{\SubtituloRelatorio}{Centro Excursionista Rio de Janeiro}
+\newcommand{\SemestreRelatorio}{1º Trimestre de 2026}
+
+%%% Para organização do sumário
+\newcommand{\EntradaSumarioExcursao}[1]{%
+  \addcontentsline{toc}{section}{\excursao\ (\guia)}%
+}
+
 %%% Contadores
 \newcounter{relatorio}
-\setcounter{relatorio}{1}
 
 %%% O documento
 \begin{document}
 \frenchspacing
+\pagenumbering{gobble} % não mostra número de página nenhum 
+
+%%% Capa
+\input{./capa.tex}
+\clearpage
+
+%%% Sumário
+\tableofcontents
+\thispagestyle{empty} % Garante página do sumário sem rodapé
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+%%% Iniciar o contador aqui para não afetar o sumário!
+\setcounter{relatorio}{1}
 
 \DTLforeach{tabela}{
   \excursao=4,
@@ -68,6 +92,7 @@
     }%
   }
 
+  \EntradaSumarioExcursao{\excursao} % Para gerar o sumário
   \section*{\excursao}
   \vspace{-0.8\baselineskip}
     \DTLifstringeq{\fim}{} % Data e hora de início e fim da atividade
