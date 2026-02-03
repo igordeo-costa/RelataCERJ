@@ -24,6 +24,7 @@ RelataCERJ/
 ├── compile_relatorio.sh
 ├── compile_relatorio_complexo.sh
 ├── gerador.tex
+├── capa.tex
 ├── data/
 │   └── DadosBrutos.csv
 ├── includes/
