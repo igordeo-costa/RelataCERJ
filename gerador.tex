@@ -18,6 +18,10 @@
 \usepackage{luacode}
 \usepackage{xstring}
 \usepackage{xcolor}
+\usepackage{xparse}
+\usepackage{seqsplit}
+\usepackage{multicol}
+
 \DTLloaddb{tabela}{data/DadosBrutos.csv}
 
 %%% Includes
@@ -37,11 +41,17 @@
   \StrBetween[1,2]{#1}{:}{:}%
 }
 
-%%% Como para exibição dos participantes empilhados no tabular
-\newcommand{\ParticipantesEmColuna}[1]{%
-  \parbox[t]{\linewidth}{%
-    \StrSubstitute{#1}{, }{\\}%
-  }%
+%%% Comando para exibição dos participantes empilhados no tabular
+%%% ou fora dele
+\newcommand{\ParticipantesEmColunas}[1]{%
+  \begin{minipage}[t]{\linewidth}
+    \setlength{\columnsep}{15pt}%
+    \begin{multicols}{3}
+      \raggedright
+      \noindent
+      \StrSubstitute{#1}{, }{\\}%
+    \end{multicols}
+  \end{minipage}%
 }
 
 %%% -----------------------------------------------------------------------
@@ -121,15 +131,19 @@
   \vspace{-2\baselineskip}  
   \begin{tabular}{@{} l p{12cm} @{}}
     \textbf{Local:} 		& \local \\
-    \textbf{Categoria:} 	& \tipo \\
+    \textbf{Classificação:} 	& \tipo \\
     \textbf{Clima:} 		& \clima \\
     \textbf{Duração:} 		& \calcularDuracao{\inicio}{\horaInicio}{\fim}{\horaFim} \\
     \textbf{Guia(s):} 		& \DTLifstringeq{\segundoGuia}{}% trata da exibição de um segundo guia na atividade
   						{\guia}%
   						{\guia\ e\ \segundoGuia} \\
     \textbf{Auxiliar(es):} 	& \auxiliar \\
-     \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes} \\
-                            	& \ParticipantesEmColuna{\listaParticipantes} \\
+     \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes}
+  \end{tabular}
+ 
+ % Lista de participantes em colunas
+  \begin{tabular}{@{} l p{12cm} @{}}
+  	\ParticipantesEmColunas{\listaParticipantes}
   \end{tabular}
   
 % Observações e relato do guia sobre a excursão
