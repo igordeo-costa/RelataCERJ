@@ -31,8 +31,10 @@ RelataCERJ/
 │   ├── aesthetics.tex
 │   ├── calc_duracao.tex
 │   └── calc_participantes.tex
+│   └── calc_trimestre.tex
 ├── img/
 │   └── logo.png
+│   └── LogoRetro1939.png
 └── RelataCERJ.pdf
 ```
 
@@ -52,13 +54,19 @@ RelataCERJ/
 
 - **`includes/`**  
   Arquivos auxiliares:
-  - `aesthetics.tex`: identidade visual e ajustes de layout
-  - `calc_duracao.tex`: cálculos automáticos de duração
-  - `calc_participantes.tex`: contagem e consolidação de participantes
+  - `aesthetics.tex`: identidade visual e ajustes de layout.
 
-- **`img/logo.png`**  
-  Logotipo utilizado no relatório.
+  Arquivos com códigos LUA para cálculos diretamente no LaTeX:
+  - `calc_duracao.tex`: cálculos automáticos de duração.
+  - `calc_participantes.tex`: contagem e consolidação de participantes.
+  - `calc_trimestre.tex`: cálculo para o trimestre coberto pelos relatórios (impresso na capa).
 
+- **`img/`**
+  - `logo.png` é o logotipo utilizado em cada relatório individual.
+  - `LogoRetro1939.png` é o logotipo antigo usado na capa.
+
+- **`capa.tex`**
+  Script para impressão da capa do documento.
 ---
 
 ## ⚙️ Requisitos
@@ -86,7 +94,7 @@ sudo apt install texlive-full
 ./compile_relatorio.sh
 ```
 
-### Relatório detalhado (modo complexo)
+### Relatório confidencial (modo complexo)
 
 ```bash
 PDF_PASSWORD="insira_senha_aqui" ./compile_relatorio_complexo.sh

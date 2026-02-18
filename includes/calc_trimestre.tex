@@ -1,0 +1,20 @@
+%%% Comando para cálculo do trimestre
+\begin{luacode}
+function trimestre_atual()
+    local mes = tonumber(os.date("%m"))
+    local ano = os.date("%Y") -- ano está o do sistema operacional (mudar para data da última excursão)
+
+    -- Divide o mês por três e arredonda para cima (ceil)
+    -- Ex. Abril é mês 4/3 = 1,33 = 2º Trimestre
+    local trimestre = math.ceil(mes / 3)
+
+    local ordinais = utf8.char(0x00BA) -- Símbolo "º"
+
+    return string.format(
+      "%d%s Trimestre de %s",
+      trimestre,
+      ordinais,
+      ano
+    )
+  end
+\end{luacode}

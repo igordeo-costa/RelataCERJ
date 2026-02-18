@@ -1,6 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 \newif\ifrelatoriocomplexo % Tipo de relatório, normal ou confidencial
-\relatoriocomplexofalse    % Para gerar relatório simples (false) ou complexo (true)
+\relatoriocomplexofalse    % Para gerar relatório simples (false, opção default) ou complexo (true)
 
 \usepackage{fontspec}
 \setmainfont{IBM Plex Sans} 
@@ -20,6 +20,7 @@
 \usepackage{xcolor}
 \usepackage{xparse}
 \usepackage{seqsplit}
+\usepackage{transparent}
 \usepackage{multicol}
 
 \DTLloaddb{tabela}{data/DadosBrutos.csv}
@@ -27,6 +28,7 @@
 %%% Includes
 \input{includes/calc_participantes}
 \input{includes/calc_duracao}
+\input{includes/calc_trimestre}
 \input{includes/aesthetics}
 
 %%% -----------------------------------------------------------------------
@@ -35,6 +37,9 @@
     \directlua{tex.sprint(duracao("#1", "#2", "#3", "#4"))}%
 }
 
+%%% Comando para cálculo do trimestre na capa do relatório
+\newcommand{\trimestreAtual}{\directlua{tex.print(trimestre_atual())}}
+
 %%% Comando para apresentar a hora no formato hh:mm e não hh:mm:ss
 \newcommand{\formatarHora}[1]{%
   \StrBefore{#1}{:}:%
@@ -42,7 +47,6 @@
 }
 
 %%% Comando para exibição dos participantes empilhados no tabular
-%%% ou fora dele
 \newcommand{\ParticipantesEmColunas}[1]{%
   \begin{minipage}[t]{\linewidth}
     \setlength{\columnsep}{15pt}%
@@ -59,20 +63,21 @@
 %%% Capa do documento
 \newcommand{\TituloRelatorio}{Relatório de Excursões Oficiais}
 \newcommand{\SubtituloRelatorio}{Centro Excursionista Rio de Janeiro}
-\newcommand{\SemestreRelatorio}{1º Trimestre de 2026}
+\newcommand{\TrimestreRelatorio}{\trimestreAtual}
 
-%%% Para organização do sumário
+%%% comando para organização do sumário
 \newcommand{\EntradaSumarioExcursao}[1]{%
   \addcontentsline{toc}{section}{\excursao\ (\guia)}%
 }
+%%% -----------------------------------------------------------------------
 
-%%% Contadores
+%%% Contador do número do relatório
 \newcounter{relatorio}
 
 %%% O documento
 \begin{document}
 \frenchspacing
-\pagenumbering{gobble} % não mostra número de página nenhum 
+\pagenumbering{gobble} % não mostra número de página 
 
 %%% Capa
 \input{./capa.tex}
