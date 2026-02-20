@@ -8,10 +8,10 @@ O **RelataCERJ** é um projeto para geração automatizada de relatórios em **L
 
 O projeto utiliza:
 
-- **LuaLaTeX** para compilação do relatório  
-- **Scripts Bash** para automatizar o processo de geração  
-- **Arquivos `.tex` modulares**, organizados por responsabilidade  
-- **Dados em CSV** como fonte única da informação  
+- **LuaLaTeX** para compilação do relatório
+- **Scripts Bash** para automatizar o processo de geração
+- **Arquivos `.tex` modulares**, organizados por responsabilidade
+- **Dados em CSV** como fonte única da informação
 
 A ideia central é: **alterou o CSV → recompilou → relatório atualizado**, sem edições manuais no documento final.
 
@@ -40,19 +40,25 @@ RelataCERJ/
 
 ### Descrição dos principais arquivos
 
-- **`gerador.tex`**  
+- **`gerador.tex`**
   Arquivo principal do LaTeX. Controla a estrutura do relatório e importa os demais módulos.
 
-- **`compile_relatorio.sh`**  
+- **`compile_relatorio.sh`**
   Script para gerar o relatório padrão.
 
-- **`compile_relatorio_complexo.sh`**  
+- **`compile_relatorio_complexo.sh`**
   Script que ativa um modo mais detalhado do relatório (via flags no LaTeX). Este script gera relatórios que exibem um campo específico do CSV em que o guia insere informações confidenciais, que podem ser lidas exclusivamente pela Diretoria Técnica (ou pessoas escolhidas por ela). O PDF final gerado por este script é criptogrado e só pode ser aberto via senha, definida quando da compilação do relatório confidencial.
 
-- **`data/DadosBrutos.csv`**  
+- **`data/DadosBrutos.exemplo.csv`**
   Base de dados do relatório. Todas as informações exibidas no PDF vêm deste arquivo.
 
-- **`includes/`**  
+Para rodar os dados de exemplo, converta o nome do arquivo de exemplo:
+
+```bash
+cp data/DadosBrutos.exemplo.csv data/DadosBrutos.csv
+```
+
+- **`includes/`**
   Arquivos auxiliares:
   - `aesthetics.tex`: identidade visual e ajustes de layout.
 
@@ -130,5 +136,5 @@ Este projeto é de uso interno/institucional. Todos que forem reproduzir devem u
 
 ## 👤 Autor
 
-**Igor de Oliveira Costa**  
+**Igor de Oliveira Costa**
 Auxiliar da Diretoria Técnica do CERJ, biênio 2026-2028.
