@@ -9,6 +9,7 @@ O **RelataCERJ** é um projeto para geração automatizada de relatórios em **L
 O projeto utiliza:
 
 - **LuaLaTeX** para compilação tipográfica do relatório
+- **latexmk** para automação da compilação
 - **Scripts Bash** para automatizar o processo de geração
 - **Arquivos `.tex` modulares**, organizados por responsabilidade
 - **Dados em CSV** como fonte única da informação
@@ -102,7 +103,7 @@ Para utilizar o projeto, é necessário:
 - gawk (para normalização da lista de participantes)
 - qpdf (para proteção do PDF, no caso do relatório confidencial)
 
-No Debian/Ubuntu, por exemplo:
+### 🐧 Instalação (Debian/Ubuntu):
 
 ```bash
 sudo apt install texlive-full latexmk gawk qpdf
@@ -169,4 +170,5 @@ Este projeto é de uso interno/institucional. Todos que forem reproduzir devem u
 ## 👤 Autor
 
 **Igor de Oliveira Costa**
+
 Auxiliar da Diretoria Técnica do CERJ, biênio 2026-2028.
