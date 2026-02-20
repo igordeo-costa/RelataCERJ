@@ -23,7 +23,12 @@
 \usepackage{transparent}
 \usepackage{multicol}
 
-\DTLloaddb{tabela}{data/DadosBrutos.csv}
+\DTLloaddb{tabela}{../data/DadosBrutos.csv}
+
+%%% Definindo path para deixar script mais limpo
+\makeatletter
+  \def\input@path{{tex/includes/}}
+\makeatother
 
 %%% Includes
 \input{includes/calc_participantes}
@@ -113,7 +118,7 @@
   \AddToShipoutPictureBG*{%
     \AtPageUpperLeft{%
       \put(\LenToUnit{\paperwidth - 5.5cm}, -4.5cm){%
-        \includegraphics[width=3cm]{img/logo.png}%
+        \includegraphics[width=3cm]{../img/logo.png}%
       }%
     }%
   }
