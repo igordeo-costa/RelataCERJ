@@ -52,6 +52,9 @@ RelataCERJ/
 - **`compile_relatorio_complexo.sh`**
   Script que ativa um modo mais detalhado do relatório (via flags no LaTeX). Este script gera relatórios que exibem um campo específico do CSV em que o guia insere informações confidenciais, que podem ser lidas exclusivamente pela Diretoria Técnica (ou pessoas escolhidas por ela). O PDF final gerado por este script é criptogrado e só pode ser aberto via senha, definida quando da compilação do relatório confidencial.
 
+  - **`ordenar_participantes.sh`**
+    Script para normalização da lista de participantes, garantindo a ordem alfabética.
+
 ### 📄 tex/
   - **`gerador.tex`**
     Arquivo principal do LaTeX. Controla a estrutura do relatório e importa os demais módulos.
