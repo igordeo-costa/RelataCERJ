@@ -3,7 +3,7 @@
 \relatoriocomplexofalse    % Para gerar relatório simples (false, opção default) ou complexo (true)
 
 \usepackage{fontspec}
-\setmainfont{IBM Plex Sans} 
+\setmainfont{IBM Plex Sans}
 \usepackage{microtype}
 \usepackage{polyglossia}
 \setdefaultlanguage[variant=brazilian]{portuguese}
@@ -61,9 +61,12 @@
 %%% -----------------------------------------------------------------------
 
 %%% Capa do documento
-\newcommand{\TituloRelatorio}{Relatório de Excursões Oficiais}
+\newcommand{\TituloRelatorio}{RELATÓRIOS \par de Excursões Oficiais}
 \newcommand{\SubtituloRelatorio}{Centro Excursionista Rio de Janeiro}
 \newcommand{\TrimestreRelatorio}{\trimestreAtual}
+
+%%% Cor do título na capa
+\definecolor{azulescuro}{RGB}{0,51,102}
 
 %%% comando para organização do sumário
 \newcommand{\EntradaSumarioExcursao}[1]{%
@@ -77,7 +80,7 @@
 %%% O documento
 \begin{document}
 \frenchspacing
-\pagenumbering{gobble} % não mostra número de página 
+\pagenumbering{gobble} % não mostra número de página
 
 %%% Capa
 \input{./capa.tex}
@@ -133,24 +136,24 @@
 \fi
 
 \section*{\null}
-  \vspace{-2\baselineskip}  
+  \vspace{-2\baselineskip}
   \begin{tabular}{@{} l p{12cm} @{}}
-    \textbf{Local:} 		& \local \\
+    \textbf{Local:}           & \local \\
     \textbf{Classificação:} 	& \tipo \\
-    \textbf{Clima:} 		& \clima \\
-    \textbf{Duração:} 		& \calcularDuracao{\inicio}{\horaInicio}{\fim}{\horaFim} \\
-    \textbf{Guia(s):} 		& \DTLifstringeq{\segundoGuia}{}% trata da exibição de um segundo guia na atividade
-  						{\guia}%
-  						{\guia\ e\ \segundoGuia} \\
-    \textbf{Auxiliar(es):} 	& \auxiliar \\
-     \textbf{Participante(s):} 	& \ContaParticipantes{\listaParticipantes}
+    \textbf{Clima:} 		      & \clima \\
+    \textbf{Duração:} 		    & \calcularDuracao{\inicio}{\horaInicio}{\fim}{\horaFim} \\
+    \textbf{Guia(s):} 		    & \DTLifstringeq{\segundoGuia}{}% trata da exibição de um segundo guia na atividade
+  						                                {\guia}%
+  						                                {\guia\ e\ \segundoGuia} \\
+    \textbf{Auxiliar(es):} 	  & \auxiliar \\
+     \textbf{Participante(s):}& \ContaParticipantes{\listaParticipantes}
   \end{tabular}
- 
+
  % Lista de participantes em colunas
   \begin{tabular}{@{} l p{12cm} @{}}
   	\ParticipantesEmColunas{\listaParticipantes}
   \end{tabular}
-  
+
 % Observações e relato do guia sobre a excursão
 \subsubsection*{Relato, Observações e outros Comentários:}
 
@@ -162,7 +165,7 @@
 % Gerar essa seção apenas para apreciação do DT quando necessário
 \ifrelatoriocomplexo
 \subsubsection*{Observações críticas e/ou sensíveis sobre a excursão:}
-	
+
 	\begin{tabular}{@{} l p{15cm} @{}}
 	 		& \edef\confidencialtmp{\confidencial} % Normaliza a coluna do .csv se estiver com espaço e não vazia de fato
 	 			\DTLifstringeq{\confidencialtmp}{}

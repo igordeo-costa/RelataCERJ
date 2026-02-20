@@ -1,23 +1,22 @@
 \thispagestyle{empty}
 
 \AddToShipoutPictureBG*{%
-  \AtPageCenter{%
-  \raisebox{-8cm}{%
-  \transparent{0.08}%
+  \AtPageLowerLeft{%
+  \put(0,0){%
+  %\AtPageCenter{%
+  %\raisebox{-8cm}{%
+  \transparent{0.06}%
     \includegraphics[
-      width=0.75\paperwidth,
-      keepaspectratio
-    ]{img/LogoRetro1939.png}%
+      width=0.75\paperwidth]{img/LogoRetro1939.png}%
   }%
 }%
 }
 
 \begin{center}
   \vspace*{3cm}
-  {\Huge \TituloRelatorio \par}
+  {\Huge \bfseries\color{azulescuro} \TituloRelatorio \par}
   \vspace{1cm}
-  {\Large \SubtituloRelatorio \par}
+  {\Large \bfseries\color{azulescuro} \SubtituloRelatorio \par}
   \vfill
-  {\large \TrimestreRelatorio}
+  {\large \color{azulescuro} \TrimestreRelatorio}
 \end{center}
-
