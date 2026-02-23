@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "Uso: $0 arquivo.csv" >&2
+  exit 1
+fi
+
 gawk -v FPAT='([^,]*)|("([^"]|"")*")' '
 BEGIN { OFS="," }
 

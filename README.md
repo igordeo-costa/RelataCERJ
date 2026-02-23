@@ -160,14 +160,6 @@ Alguns pontos comuns de customização:
 - **Formato dos dados**: ajustar `DadosBrutos.csv` e o parser correspondente no LaTeX
 
 ---
-## 🛠 Desenvolvimentos em curso
-
-- Produzir uma interface gráfica em python usando `tkinter` para facilitar a produção dos relatórios por outras pessoas que não o auxiliar da Diretoria Técnica. A pasta já contém no diretório raiz o arquivo `relatacerj_gui.py`.
-
-- Para executar:
-  ```Bash
-  python3 relatacerj_gui.py
-  ```
 
 ## 📄 Licença
 
