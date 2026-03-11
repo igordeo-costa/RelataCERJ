@@ -36,6 +36,7 @@ RelataCERJ/
 │   ├── calc_duracao.tex
 │   ├── calc_participantes.tex
 │   └── calc_trimestre.tex
+│   └── normalize_breaklines.tex
 ├── img/
 │   ├── logo.png
 │   └── LogoRetro1939.png
@@ -82,6 +83,9 @@ cp data/DadosBrutos.exemplo.csv data/DadosBrutos.csv
   - `calc_duracao.tex`: cálculos automáticos de duração.
   - `calc_participantes.tex`: contagem e consolidação de participantes.
   - `calc_trimestre.tex`: cálculo para o trimestre coberto pelos relatórios (impresso na capa).
+
+  Arquivos com códigos LUA para normalização das quebras de linhas no relato propriamente dito:
+  - `normalize_breaklines.tex`: Esse script gera o arquivo `DadosBrutosNormalizados.csv` que serve de input para o arquivo `LaTex` principal.
 
 ### 🖼 img/
   - `logo.png` é o logotipo utilizado em cada relatório individual.

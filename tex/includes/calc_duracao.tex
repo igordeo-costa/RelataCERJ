@@ -8,7 +8,7 @@ function duracao(inicio, hora_inicio, fim, hora_fim)
     local function parse_datetime(date_str, time_str)
         local day, month, year = date_str:match("(%d+)/(%d+)/(%d+)")
         local hour, minute, second = time_str:match("(%d+):(%d+):(%d+)")
-        
+
         return os.time({
             year = tonumber(year),
             month = tonumber(month),
@@ -18,23 +18,23 @@ function duracao(inicio, hora_inicio, fim, hora_fim)
             sec = tonumber(second)
         })
     end
-    
+
     -- Se fim for vazio, usar início
     if fim == "" then
         fim = inicio
     end
-    
+
     local t0 = parse_datetime(inicio, hora_inicio)
     local t1 = parse_datetime(fim, hora_fim)
-    
+
     local diff_seconds = os.difftime(t1, t0)
-    
+
     -- Calcular dias, horas e minutos
     local dias = math.floor(diff_seconds / 86400)  -- 86400 segundos em um dia
     local segundos_resto = diff_seconds % 86400
     local horas = math.floor(segundos_resto / 3600)
     local minutos = math.floor((segundos_resto % 3600) / 60)
-    
+
     -- Formatar a saída de acordo com a duração
     if dias == 0 then
         -- Menos de 1 dia: mostrar horas e minutos

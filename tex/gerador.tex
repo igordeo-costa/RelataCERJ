@@ -23,14 +23,27 @@
 \usepackage{transparent}
 \usepackage{multicol}
 
-\DTLloaddb{tabela}{../data/DadosBrutos.csv}
-
 %%% Definindo path para deixar script mais limpo
 \makeatletter
   \def\input@path{{tex/includes/}}
 \makeatother
 
 %%% Includes
+%%% Normalizando as quebras de linhas da coluna 9 - Relato propriamente dito
+\input{includes/normalize_breaklines}
+
+\directlua{
+normalize_breaklines(
+  "../data/DadosBrutos.csv", % Dados de Entrada
+  "../data/DadosBrutosNormalizados.csv" % Dados de Saída
+)
+}
+
+%%% Carrega os dados normalizados quanto às quebras de linhas
+\DTLloaddb{tabela}{../data/DadosBrutosNormalizados.csv}
+
+%%% Includes
+\input{includes/normalize_breaklines}
 \input{includes/calc_participantes}
 \input{includes/calc_duracao}
 \input{includes/calc_trimestre}
@@ -162,9 +175,8 @@
 % Observações e relato do guia sobre a excursão
 \subsubsection*{Relato, Observações e outros Comentários:}
 
-  \begin{tabular}{@{} l p{15cm} @{}}
-    & \observacoes \\
-  \end{tabular}
+\noindent
+\observacoes
 
 % Observações críticas e ou sensíveis sobre a excursão
 % Gerar essa seção apenas para apreciação do DT quando necessário

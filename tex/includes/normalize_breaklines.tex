@@ -1,0 +1,46 @@
+\begin{luacode*}
+function normalize_breaklines(input, output)
+
+  local f = io.open(input, "r")
+  local text = f:read("*all")
+  f:close()
+
+  local result = {}
+  local in_quotes = false
+  local i = 1
+
+  while i <= #text do
+    local c = text:sub(i,i)
+
+    if c == '"' then
+      local nextc = text:sub(i+1,i+1)
+
+      if in_quotes and nextc == '"' then
+        table.insert(result, '""')
+        i = i + 2
+      else
+        in_quotes = not in_quotes
+        table.insert(result, '"')
+        i = i + 1
+      end
+
+    elseif (c == "\n" or c == "\r") and in_quotes then
+      table.insert(result, "\\\\[1em]")
+      i = i + 1
+
+      if c == "\r" and text:sub(i,i) == "\n" then
+        i = i + 1
+      end
+
+    else
+      table.insert(result, c)
+      i = i + 1
+    end
+  end
+
+  local out = io.open(output, "w")
+  out:write(table.concat(result))
+  out:close()
+
+end
+\end{luacode*}
