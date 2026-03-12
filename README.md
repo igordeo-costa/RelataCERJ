@@ -85,7 +85,7 @@ cp data/DadosBrutos.exemplo.csv data/DadosBrutos.csv
   - `calc_trimestre.tex`: cálculo para o trimestre coberto pelos relatórios (impresso na capa).
 
   Arquivos com códigos LUA para normalização das quebras de linhas no relato propriamente dito:
-  - `normalize_breaklines.tex`: Esse script gera o arquivo `DadosBrutosNormalizados.csv` que serve de input para o arquivo `LaTex` principal.
+  - `normalize_breaklines.tex`: Esse script gera um arquivo temporário normalizado que serve de input para a compilação.
 
 ### 🖼 img/
   - `logo.png` é o logotipo utilizado em cada relatório individual.
