@@ -15,9 +15,11 @@ function normalize_breaklines(input, output)
   end
 
   local buffer = ""
+  local blank_pending = false
 
   for line in infile:lines() do
 
+    -- Detecta início de novo registro do CSV
     if line:match("^%d%d/%d%d/%d%d%d%d %d%d:%d%d:%d%d,") then
 
       if buffer ~= "" then
@@ -25,13 +27,29 @@ function normalize_breaklines(input, output)
       end
 
       buffer = line
+      blank_pending = false
 
     else
 
-      if buffer == "" then
-        buffer = line
+      -- Linha em branco
+      if line:match("^%s*$") then
+        blank_pending = true
+
       else
-        buffer = buffer .. "\\\\[1em]" .. line
+
+        if buffer == "" then
+          buffer = line
+        else
+
+          if blank_pending then
+            buffer = buffer .. "\\\\[1em]" .. line
+          else
+            buffer = buffer .. "\\\\" .. line
+          end
+
+        end
+
+        blank_pending = false
       end
 
     end
