@@ -52,12 +52,12 @@ fi
 chmod +x "$ORDENADOR" 2>/dev/null || true
 
 # Cria arquivo temporário no diretório build (que é gravável)
-TMP_CSV="$(mktemp -p "$BUILD_DIR" tmp_csv_XXXXXX)"
+TMP_CSV="$BUILD_DIR/tmp_csv_relatorio.csv"
 
-# Executa o ordenador
+rm -f "$TMP_CSV"
+
 if ! bash "$ORDENADOR" "$CSV" > "$TMP_CSV"; then
   echo "Erro na execução do ordenador"
-  rm -f "$TMP_CSV"
   exit 1
 fi
 
@@ -67,9 +67,6 @@ if [[ ! -s "$TMP_CSV" ]]; then
   rm -f "$TMP_CSV"
   exit 1
 fi
-
-# Substitui o CSV original
-mv "$TMP_CSV" "$CSV"
 
 echo "Gerando relatório..."
 
@@ -94,7 +91,8 @@ sed -i.bak \
 # ─────────────────────────────────────
 # Compila o LaTeX
 # ─────────────────────────────────────
-latexmk -lualatex -quiet -cd "$GERADOR"
+#latexmk -lualatex -quiet -cd "$GERADOR"
+CSV_PATH="$TMP_CSV" latexmk -lualatex -quiet -cd "$GERADOR"
 
 PDF_SRC="$ROOT_DIR/tex/gerador.pdf"
 PDF_OUT="$BUILD_DIR/$OUT.pdf"

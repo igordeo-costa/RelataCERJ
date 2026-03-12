@@ -28,22 +28,43 @@
   \def\input@path{{tex/includes/}}
 \makeatother
 
-%%% Includes
+%%% -----------------------------------------------------------------------
 %%% Normalizando as quebras de linhas da coluna 9 - Relato propriamente dito
+%%% Includes
+%%% -----------------------------------------------------------------------
+%%% Normalizando as quebras de linha do CSV que será usado
 \input{includes/normalize_breaklines}
 
 \directlua{
-normalize_breaklines(
-  "../data/DadosBrutos.csv", % Dados de Entrada
-  "../data/DadosBrutosNormalizados.csv" % Dados de Saída
-)
+local input = os.getenv("CSV_PATH") or "../data/DadosBrutos.csv"
+local output = "../data/DadosBrutos_tmp.csv"
+normalize_breaklines(input, output)
+tex.print("\\DTLloaddb{tabela}{"..output.."}")
+}
+%%% -----------------------------------------------------------------------
+
+%%% Apaga o arquivo temporário, que já está carregado na memória
+\AtEndDocument{
+\directlua{
+local tmp = "../data/DadosBrutos_tmp.csv"
+local f = io.open(tmp,"r")
+if f then
+  f:close()
+  os.remove(tmp)
+end
+}
 }
 
-%%% Carrega os dados normalizados quanto às quebras de linhas
-\DTLloaddb{tabela}{../data/DadosBrutosNormalizados.csv}
+% Remove temporários da pasta build
+\AtEndDocument{
+\directlua{
+local tmp = "../build/tmp_csv_relatorio.csv"
+os.remove(tmp)
+}
+}
+%%% -----------------------------------------------------------------------
 
-%%% Includes
-\input{includes/normalize_breaklines}
+%%% Includes dos auxiliares
 \input{includes/calc_participantes}
 \input{includes/calc_duracao}
 \input{includes/calc_trimestre}
@@ -86,14 +107,24 @@ normalize_breaklines(
 %%% Cor do título na capa
 \definecolor{azulescuro}{RGB}{0,51,102}
 
-%%% comando para organização do sumário
-\newcommand{\EntradaSumarioExcursao}[1]{%
-  \addcontentsline{toc}{section}{\excursao\ (\guia)}%
-}
 %%% -----------------------------------------------------------------------
-
 %%% Contador do número do relatório
 \newcounter{relatorio}
+
+%%% formato 2026.1, 2026.2, ...
+\renewcommand{\therelatorio}{\the\year.\arabic{relatorio}}
+
+%%% comando para organização do sumário
+
+\makeatletter
+\newcommand{\EntradaSumarioExcursao}[1]{%
+  \begingroup
+  \edef\temp{\therelatorio\space—\space #1 \space—\space \guia}%
+  \phantomsection
+  \addcontentsline{toc}{section}{\temp}%
+  \endgroup
+}
+\makeatother
 
 %%% O documento
 \begin{document}
@@ -114,6 +145,7 @@ normalize_breaklines(
 %%% Iniciar o contador aqui para não afetar o sumário!
 \setcounter{relatorio}{1}
 
+%%% Loop do CSV
 \DTLforeach{tabela}{
   \excursao=4,
   \local=12,
@@ -149,8 +181,7 @@ normalize_breaklines(
 
 %%% Marcação de relatório confidencial em vermelho!
 \ifrelatoriocomplexo
-\noindent\textbf{\textcolor{red}{CONFIDENCIAL!}} \\
-\textcolor{red}{Este relatório contém informações críticas e/ou sensíveis! \\ Leitura exclusiva da Diretoria Técnica.}
+\noindent\textbf{\textcolor{red}{CONFIDENCIAL!}}
 \fi
 
 \section*{\null}
@@ -172,24 +203,23 @@ normalize_breaklines(
   	\ParticipantesEmColunas{\listaParticipantes}
   \end{tabular}
 
-% Observações e relato do guia sobre a excursão
-\subsubsection*{Relato, Observações e outros Comentários:}
+  % Observações e relato do guia sobre a excursão
+  \subsubsection*{Relato, Observações e outros Comentários:}
 
-\noindent
-\observacoes
+  \noindent
+  \observacoes
 
-% Observações críticas e ou sensíveis sobre a excursão
-% Gerar essa seção apenas para apreciação do DT quando necessário
-\ifrelatoriocomplexo
-\subsubsection*{Observações críticas e/ou sensíveis sobre a excursão:}
+  % Observações críticas e ou sensíveis sobre a excursão
+  \ifrelatoriocomplexo
+  \subsubsection*{Observações críticas e/ou sensíveis sobre a excursão:}
 
-	\begin{tabular}{@{} l p{15cm} @{}}
-	 		& \edef\confidencialtmp{\confidencial} % Normaliza a coluna do .csv se estiver com espaço e não vazia de fato
-	 			\DTLifstringeq{\confidencialtmp}{}
-  					{\textcolor{red}{Não há informações críticas ou sensíveis neste relatório!}}
-  					{\textcolor{red}{\confidencial}} \\
-  	\end{tabular}
-\fi
+  \noindent
+  \edef\confidencialtmp{\confidencial} % normaliza espaços vindos do CSV
+  \DTLifstringeq{\confidencialtmp}{}
+    {\textcolor{red}{Não há informações críticas ou sensíveis neste relatório!}}
+    {\textcolor{red}{\confidencial}}
+
+  \fi
 
 \subsubsection*{\null}
  \begin{tabular}{@{} l p{15cm} @{}}
