@@ -42,6 +42,7 @@ normalize_breaklines(input, output)
 tex.print("\\DTLloaddb{tabela}{"..output.."}")
 }
 %%% -----------------------------------------------------------------------
+%%% Função para gerar as estatísticas dos guias
 
 %%% Apaga o arquivo temporário, que já está carregado na memória
 \AtEndDocument{
@@ -65,6 +66,7 @@ os.remove(tmp)
 %%% -----------------------------------------------------------------------
 
 %%% Includes dos auxiliares
+\input{includes/calc_stats}
 \input{includes/calc_participantes}
 \input{includes/calc_duracao}
 \input{includes/calc_trimestre}
@@ -140,9 +142,57 @@ os.remove(tmp)
 \thispagestyle{empty} % Garante página do sumário sem rodapé
 \clearpage
 \pagenumbering{arabic}
+\clearpage
 \setcounter{page}{1}
 
-%%% Iniciar o contador aqui para não afetar o sumário!
+\section*{Estatísticas}
+\thispagestyle{empty} % Garante página sem rodapé
+\addcontentsline{toc}{section}{Estatísticas}
+
+A tabela a seguir apresenta um resumo das atividades dos guias durante o período
+coberto por este documento. Foram considerados três indicadores:
+
+\begin{itemize}
+\item quantidade de \textbf{pranchetas} abertas;
+\item número de \textbf{participantes} conduzidos;
+\item total de \textbf{horas} em atividades oficiais na montanha.
+\end{itemize}
+
+\noindent A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza todos os guias abaixo
+listados, que dedicaram seu tempo para conduzir e acompanhar os sócios do clube
+nas montanhas.
+
+\medskip
+\noindent\textbf{Muito obrigado!}
+\medskip
+
+% chama o Lua para gerar CSV
+\directlua{
+  gerar_estatisticas_csv("../data/DadosBrutos_tmp.csv","../data/estatisticas_tmp.csv")
+}
+
+% carrega CSV
+\DTLloaddb{estatisticas}{../data/estatisticas_tmp.csv}
+
+\begin{center}
+%\footnotesize
+\begin{tabular}{lrrr}
+& \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
+\hline
+\DTLforeach{estatisticas}{
+  \g=Guia,
+  \a=Atividades,
+  \p=Participantes,
+  \h=Horas}{%
+\g & \a & \p & \h \\
+}
+\end{tabular}
+\end{center}
+
+\par
+\vfill
+\pagebreak
+%%% Iniciar os contador de relatórios aqui!
 \setcounter{relatorio}{1}
 
 %%% Loop do CSV
