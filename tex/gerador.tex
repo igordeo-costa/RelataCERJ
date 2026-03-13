@@ -154,7 +154,8 @@ os.remove(tmp)
 gerar_estatisticas_csv(
 "../data/DadosBrutos_tmp.csv",
 "../data/estatisticas_tmp.csv",
-"../data/totais_tmp.csv"
+"../data/totais_tmp.csv",
+"../data/auxiliares_tmp.csv"
 )
 }
 
@@ -163,7 +164,7 @@ gerar_estatisticas_csv(
 texto_estatisticas_totais("../data/totais_tmp.csv")
 }
 
-\medskip
+\subsection*{Guias}
 
 \noindent A tabela a seguir apresenta um resumo das atividades dos guias durante o período
 coberto por este documento. Foram considerados três indicadores:
@@ -174,16 +175,14 @@ coberto por este documento. Foram considerados três indicadores:
 \item total de \textbf{horas} em atividades oficiais na montanha.
 \end{itemize}
 
-\noindent A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza todos os guias abaixo
-listados, que dedicaram seu tempo para conduzir e acompanhar os sócios do clube
-nas montanhas.
+\medskip
 
 % carrega CSV
 \DTLloaddb{estatisticas}{../data/estatisticas_tmp.csv}
 
 \begin{center}
 %\footnotesize
-\begin{tabular}{lrrr}
+\begin{tabular}{rccr}
 & \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
 \hline
 \DTLforeach{estatisticas}{
@@ -195,6 +194,32 @@ nas montanhas.
 }
 \end{tabular}
 \end{center}
+
+\medskip
+
+\noindent A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza todos os guias que dedicaram seu tempo para conduzir com segurança os sócios do clube.
+
+\subsection*{Auxiliares}
+Além dos guias, muitos sócios, guias ou não, também dedicaram seu tempo a participar das atividades como \textbf{auxiliares de pranchetas}, ajudando os guias a organizar e conduzir os membros do clube nas montanhas. Abaixo listamos todos aqueles que se disponibilizaram a ajudar os nossos guias duante esse tempo. A todos vocês, a \textbf{Diretoria Técnica do CERJ}, em nome de toda a comunidade CERJense, agradece com um enorme \textbf{Muito obrigado!}
+
+\DTLloaddb{auxiliares}{../data/auxiliares_tmp.csv}
+
+\begin{center}
+%\footnotesize
+\begin{tabular}{rc}
+& \textbf{Pranchetas} \\
+\hline
+\DTLforeach{auxiliares}{
+  \g=Auxiliar,
+  \a=Atividades}{%
+\g & \a \\
+}
+\end{tabular}
+\end{center}
+
+
+\subsection*{Tipos de Atividades}
+\subsection*{Atividades por Período}
 
 \par
 \vfill

@@ -1,6 +1,6 @@
 \begin{luacode*}
 
-function gerar_estatisticas_csv(input_csv, output_csv, totais_csv)
+function gerar_estatisticas_csv(input_csv, output_csv, totais_csv, auxiliares_csv)
 
 -- converter data + hora
 function parse_datetime(data,hora)
@@ -20,6 +20,30 @@ function parse_datetime(data,hora)
     min=tonumber(M) or 0,
     sec=tonumber(S) or 0
   }
+end
+
+-- Horas no formato hh:mm
+-- =========================================================
+-- Formatar duração para tabela (312h45)
+-- =========================================================
+function formatar_horas_tabela(horas)
+  local h = math.floor(horas)
+  local m = math.floor((horas - h) * 60 + 0.5)
+  return string.format("%dh%02d", h, m)
+end
+
+-- =========================================================
+-- Formatar duração para texto (312 horas e 45 minutos)
+-- =========================================================
+function formatar_horas_texto(horas)
+  local h = math.floor(horas)
+  local m = math.floor((horas - h) * 60 + 0.5)
+
+  if m == 0 then
+    return string.format("%d horas", h)
+  end
+
+  return string.format("%d horas e %d minutos", h, m)
 end
 
 
@@ -74,6 +98,19 @@ function registrar_guia(nome,total_part,duracao,guias)
 
 end
 
+-- registrar auxiliares
+function registrar_aux(nome, auxiliares)
+
+  if not nome or nome=="" then return end
+
+  nome=nome:match("^%s*(.-)%s*$")
+
+  if not auxiliares[nome] then
+    auxiliares[nome]={atividades=0}
+  end
+
+  auxiliares[nome].atividades=auxiliares[nome].atividades+1
+end
 
 local file=io.open(input_csv,"r")
 if not file then
@@ -82,6 +119,7 @@ if not file then
 end
 
 local guias={}
+local auxiliares={}
 
 local total_atividades=0
 local total_participantes=0
@@ -95,6 +133,8 @@ for line in file:lines() do
 
   local guia1=col[2]
   local guia2=col[15]
+
+  local aux=col[3]
 
   local participantes=col[10]
 
@@ -111,6 +151,13 @@ for line in file:lines() do
     for nome in participantes:gmatch("[^,]+") do
       nome=nome:match("^%s*(.-)%s*$")
       if nome~="" then total_part=total_part+1 end
+    end
+  end
+
+  if aux and aux ~= "" then
+    for nome in aux:gmatch("[^,]+") do
+      nome = nome:match("^%s*(.-)%s*$")
+      registrar_aux(nome, auxiliares)
     end
   end
 
@@ -168,32 +215,57 @@ table.sort(ranking,function(a,b)
   end
 end)
 
-
 -- escrever CSV ranking
 local out=io.open(output_csv,"w")
 out:write("Guia,Atividades,Participantes,Horas\n")
 
 for _,item in ipairs(ranking) do
   out:write(string.format(
-  "%s,%d,%d,%.2f\n",
+  "%s,%d,%d,%s\n",
   item.guia,
   item.atividades,
   item.participantes,
-  item.horas))
+  formatar_horas_tabela(item.horas)))
 end
 
 out:close()
 
+-- ranking dos auxiliares
+local aux_ranking={}
+
+for nome,dados in pairs(auxiliares) do
+  table.insert(aux_ranking,{
+    nome=nome,
+    atividades=dados.atividades
+  })
+end
+
+table.sort(aux_ranking, function(a,b)
+  return a.atividades > b.atividades
+end)
+
+-- escrever CSV aux_ranking
+local out_aux=io.open(auxiliares_csv,"w")
+out_aux:write("Auxiliar,Atividades\n")
+
+for _,item in ipairs(aux_ranking) do
+  out_aux:write(string.format(
+  "%s,%d\n",
+  item.nome,
+  item.atividades))
+end
+
+out_aux:close()
 
 -- escrever totais
 if totais_csv then
   local out2=io.open(totais_csv,"w")
   out2:write("Atividades,Participantes,Horas\n")
   out2:write(string.format(
-  "%d,%d,%.2f\n",
+  "%d,%d,%s\n",
   total_atividades,
   total_participantes,
-  total_horas))
+  formatar_horas_texto(total_horas)))
   out2:close()
 end
 
@@ -216,8 +288,8 @@ function texto_estatisticas_totais(csv)
   local a,p,h=line:match("([^,]+),([^,]+),([^,]+)")
 
   tex.sprint(string.format(
-  "Durante o período coberto por este relatório, foram realizadas \\textbf{%s} pranchetas oficiais, mobilizando \\textbf{%s} participantes e totalizando \\textbf{%.0f} horas de atividades de montanha.",
-  a,p,tonumber(h)))
+  "Durante o período coberto por este relatório, foram realizadas \\textbf{%d} pranchetas oficiais, mobilizando \\textbf{%d} participantes e totalizando \\textbf{%s} de atividades de montanha.",
+  a,p,h))
 
 end
 
