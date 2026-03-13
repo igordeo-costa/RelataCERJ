@@ -1,112 +1,224 @@
 \begin{luacode*}
-function gerar_estatisticas_csv(input_csv, output_csv)
-  local function parse_datetime(data,hora)
-    if not data or data=="" then return nil end
-    if not hora or hora=="" then hora="00:00:00" end
-    local d,m,y = data:match("(%d%d)/(%d%d)/(%d%d%d%d)")
-    local H,M,S = hora:match("(%d%d):(%d%d):?(%d*)")
-    d = tonumber(d) m = tonumber(m) y = tonumber(y)
-    H = tonumber(H) or 0 M = tonumber(M) or 0 S = tonumber(S) or 0
-    if not d or not m or not y then return nil end
-    return os.time{year=y,month=m,day=d,hour=H,min=M,sec=S}
-  end
 
-  local function split_csv(line)
-    local res, pos = {}, 1
-    while pos <= #line do
-      local c = line:sub(pos,pos)
-      if c == '"' then
-        local first = pos+1
-        local last = line:find('"', first)
-        while line:sub(last+1,last+1) == '"' do
-          last = line:find('"', last+2)
-        end
-        table.insert(res, line:sub(first,last-1))
-        pos = last+2
-      else
-        local next_comma = line:find(',', pos) or (#line+1)
-        table.insert(res, line:sub(pos,next_comma-1))
-        pos = next_comma + 1
-      end
-    end
-    for i=1,#res do res[i] = res[i]:match("^%s*(.-)%s*$") end
-    return res
-  end
+function gerar_estatisticas_csv(input_csv, output_csv, totais_csv)
 
-  local file = io.open(input_csv,"r")
-  if not file then
-    texio.write_nl("Erro: não consegui abrir "..input_csv)
-    return
-  end
+-- converter data + hora
+function parse_datetime(data,hora)
+  if not data or data=="" then return nil end
+  if not hora or hora=="" then hora="00:00:00" end
 
-  local guias = {}
-  file:read() -- pular cabeçalho
-  for line in file:lines() do
-    local col = split_csv(line)
-    local guia = col[2]
-    local participantes = col[10]
-    local data_ini = col[6]
-    local data_fim = col[7]
-    local hora_ini = col[8]
-    local hora_fim = col[14]
+  local d,m,y = data:match("(%d%d)/(%d%d)/(%d%d%d%d)")
+  local H,M,S = hora:match("(%d%d):(%d%d):?(%d*)")
 
-    if guia and guia~="" then
-      local total_part = 0
-      if participantes and participantes~="" then
-        for nome in participantes:gmatch("[^,]+") do
-          nome = nome:match("^%s*(.-)%s*$")
-          if nome~="" then total_part = total_part+1 end
-        end
-      end
+  if not d then return nil end
 
-      local inicio = parse_datetime(data_ini,hora_ini)
-      local fim
-      if data_fim and data_fim~="" and data_fim~=data_ini then
-        fim = parse_datetime(data_fim,hora_fim)
-      else
-        if hora_fim and hora_fim~="" then fim = parse_datetime(data_ini,hora_fim)
-        else fim = inicio end
-      end
-      local duracao = 0
-      if inicio and fim then
-        duracao = (fim-inicio)/3600
-        if duracao<0 then duracao=0 end
-      end
-
-      if not guias[guia] then guias[guia]={atividades=0,participantes=0,horas=0} end
-      guias[guia].atividades = guias[guia].atividades +1
-      guias[guia].participantes = guias[guia].participantes + total_part
-      guias[guia].horas = guias[guia].horas + duracao
-    end
-  end
-  file:close()
-
-  -- transformar e ordenar
-  local ranking = {}
-  for g,d in pairs(guias) do
-    table.insert(ranking,{
-      guia = g,
-      atividades = d.atividades,
-      participantes = d.participantes,
-      horas = d.horas
-    })
-  end
-  table.sort(ranking,function(a,b)
-    if a.atividades~=b.atividades then return a.atividades>b.atividades
-    elseif a.participantes~=b.participantes then return a.participantes>b.participantes
-    else return a.horas>b.horas end
-  end)
-
-  -- escrever CSV
-  local out = io.open(output_csv,"w")
-  if not out then
-    texio.write_nl("Erro: não consegui criar "..output_csv)
-    return
-  end
-  out:write("Guia,Atividades,Participantes,Horas\n")
-  for _,item in ipairs(ranking) do
-    out:write(string.format("%s,%d,%d,%.2f\n", item.guia,item.atividades,item.participantes,item.horas))
-  end
-  out:close()
+  return os.time{
+    year=tonumber(y),
+    month=tonumber(m),
+    day=tonumber(d),
+    hour=tonumber(H) or 0,
+    min=tonumber(M) or 0,
+    sec=tonumber(S) or 0
+  }
 end
+
+
+-- parser CSV
+function split_csv(line)
+
+  local res,pos={},1
+
+  while pos<=#line do
+    local c=line:sub(pos,pos)
+
+    if c=='"' then
+      local first=pos+1
+      local last=line:find('"',first)
+
+      while line:sub(last+1,last+1)=='"' do
+        last=line:find('"',last+2)
+      end
+
+      table.insert(res,line:sub(first,last-1))
+      pos=last+2
+
+    else
+      local next=line:find(',',pos) or (#line+1)
+      table.insert(res,line:sub(pos,next-1))
+      pos=next+1
+    end
+  end
+
+  for i=1,#res do
+    res[i]=res[i]:match("^%s*(.-)%s*$")
+  end
+
+  return res
+end
+
+
+-- registrar guia
+function registrar_guia(nome,total_part,duracao,guias)
+
+  if not nome or nome=="" then return end
+
+  nome=nome:match("^%s*(.-)%s*$")
+
+  if not guias[nome] then
+    guias[nome]={atividades=0,participantes=0,horas=0}
+  end
+
+  guias[nome].atividades=guias[nome].atividades+1
+  guias[nome].participantes=guias[nome].participantes+total_part
+  guias[nome].horas=guias[nome].horas+duracao
+
+end
+
+
+local file=io.open(input_csv,"r")
+if not file then
+  texio.write_nl("Erro ao abrir "..input_csv)
+  return
+end
+
+local guias={}
+
+local total_atividades=0
+local total_participantes=0
+local total_horas=0
+
+file:read()
+
+for line in file:lines() do
+
+  local col=split_csv(line)
+
+  local guia1=col[2]
+  local guia2=col[15]
+
+  local participantes=col[10]
+
+  local data_ini=col[6]
+  local data_fim=col[7]
+
+  local hora_ini=col[8]
+  local hora_fim=col[14]
+
+  -- contar participantes
+  local total_part=0
+
+  if participantes and participantes~="" then
+    for nome in participantes:gmatch("[^,]+") do
+      nome=nome:match("^%s*(.-)%s*$")
+      if nome~="" then total_part=total_part+1 end
+    end
+  end
+
+  -- calcular duração
+  local inicio=parse_datetime(data_ini,hora_ini)
+
+  local fim
+  if data_fim and data_fim~="" then
+    fim=parse_datetime(data_fim,hora_fim)
+  else
+    fim=parse_datetime(data_ini,hora_fim)
+  end
+
+  local duracao=0
+  if inicio and fim then
+    duracao=(fim-inicio)/3600
+  end
+
+  -- totais gerais
+  total_atividades=total_atividades+1
+  total_participantes=total_participantes+total_part
+  total_horas=total_horas+duracao
+
+  -- registrar guias
+  registrar_guia(guia1,total_part,duracao,guias)
+
+  if guia2 and guia2~=guia1 then
+    registrar_guia(guia2,total_part,duracao,guias)
+  end
+
+end
+
+file:close()
+
+
+-- ranking
+local ranking={}
+
+for g,d in pairs(guias) do
+  table.insert(ranking,{
+    guia=g,
+    atividades=d.atividades,
+    participantes=d.participantes,
+    horas=d.horas
+  })
+end
+
+table.sort(ranking,function(a,b)
+  if a.atividades~=b.atividades then
+    return a.atividades>b.atividades
+  elseif a.participantes~=b.participantes then
+    return a.participantes>b.participantes
+  else
+    return a.horas>b.horas
+  end
+end)
+
+
+-- escrever CSV ranking
+local out=io.open(output_csv,"w")
+out:write("Guia,Atividades,Participantes,Horas\n")
+
+for _,item in ipairs(ranking) do
+  out:write(string.format(
+  "%s,%d,%d,%.2f\n",
+  item.guia,
+  item.atividades,
+  item.participantes,
+  item.horas))
+end
+
+out:close()
+
+
+-- escrever totais
+if totais_csv then
+  local out2=io.open(totais_csv,"w")
+  out2:write("Atividades,Participantes,Horas\n")
+  out2:write(string.format(
+  "%d,%d,%.2f\n",
+  total_atividades,
+  total_participantes,
+  total_horas))
+  out2:close()
+end
+
+end
+
+
+-- texto automático
+function texto_estatisticas_totais(csv)
+
+  local f=io.open(csv,"r")
+  if not f then
+    tex.sprint("Dados estatísticos indisponíveis.")
+    return
+  end
+
+  f:read()
+  local line=f:read()
+  f:close()
+
+  local a,p,h=line:match("([^,]+),([^,]+),([^,]+)")
+
+  tex.sprint(string.format(
+  "Durante o período coberto por este relatório, foram realizadas \\textbf{%s} pranchetas oficiais, mobilizando \\textbf{%s} participantes e totalizando \\textbf{%.0f} horas de atividades de montanha.",
+  a,p,tonumber(h)))
+
+end
+
 \end{luacode*}

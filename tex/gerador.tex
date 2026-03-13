@@ -149,7 +149,23 @@ os.remove(tmp)
 \thispagestyle{empty} % Garante página sem rodapé
 \addcontentsline{toc}{section}{Estatísticas}
 
-A tabela a seguir apresenta um resumo das atividades dos guias durante o período
+% chama o Lua para gerar CSV
+\directlua{
+gerar_estatisticas_csv(
+"../data/DadosBrutos_tmp.csv",
+"../data/estatisticas_tmp.csv",
+"../data/totais_tmp.csv"
+)
+}
+
+%%% Escreve o texto inicial com as estatísticas gerais do período
+\noindent\directlua{
+texto_estatisticas_totais("../data/totais_tmp.csv")
+}
+
+\medskip
+
+\noindent A tabela a seguir apresenta um resumo das atividades dos guias durante o período
 coberto por este documento. Foram considerados três indicadores:
 
 \begin{itemize}
@@ -161,15 +177,6 @@ coberto por este documento. Foram considerados três indicadores:
 \noindent A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza todos os guias abaixo
 listados, que dedicaram seu tempo para conduzir e acompanhar os sócios do clube
 nas montanhas.
-
-\medskip
-\noindent\textbf{Muito obrigado!}
-\medskip
-
-% chama o Lua para gerar CSV
-\directlua{
-  gerar_estatisticas_csv("../data/DadosBrutos_tmp.csv","../data/estatisticas_tmp.csv")
-}
 
 % carrega CSV
 \DTLloaddb{estatisticas}{../data/estatisticas_tmp.csv}
