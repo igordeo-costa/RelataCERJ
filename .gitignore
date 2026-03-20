@@ -1,3 +1,5 @@
 data/DadosBrutos.csv
 # Todos os PDFs gerados
 build/*.pdf
+# Todos os tmp gerados
+data/*_tmp.csv
