@@ -22,6 +22,9 @@
 \usepackage{seqsplit}
 \usepackage{transparent}
 \usepackage{multicol}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{parskip}
 
 %%% Definindo path para deixar script mais limpo
 \makeatletter
@@ -64,7 +67,6 @@ os.remove(tmp)
 }
 }
 %%% -----------------------------------------------------------------------
-
 %%% Includes dos auxiliares
 \input{includes/calc_stats}
 \input{includes/calc_participantes}
@@ -100,7 +102,6 @@ os.remove(tmp)
 }
 
 %%% -----------------------------------------------------------------------
-
 %%% Capa do documento
 \newcommand{\TituloRelatorio}{RELATÓRIOS \par de Excursões Oficiais}
 \newcommand{\SubtituloRelatorio}{Centro Excursionista Rio de Janeiro}
@@ -145,81 +146,7 @@ os.remove(tmp)
 \clearpage
 \setcounter{page}{1}
 
-\section*{Estatísticas}
-\thispagestyle{empty} % Garante página sem rodapé
-\addcontentsline{toc}{section}{Estatísticas}
-
-% chama o Lua para gerar CSV
-\directlua{
-gerar_estatisticas_csv(
-"../data/DadosBrutos_tmp.csv",
-"../data/estatisticas_tmp.csv",
-"../data/totais_tmp.csv",
-"../data/auxiliares_tmp.csv"
-)
-}
-
-%%% Escreve o texto inicial com as estatísticas gerais do período
-\noindent\directlua{
-texto_estatisticas_totais("../data/totais_tmp.csv")
-}
-
-\subsection*{Guias}
-
-\noindent A tabela a seguir apresenta um resumo das atividades dos guias durante o período
-coberto por este documento. Foram considerados três indicadores:
-
-\begin{itemize}
-\item quantidade de \textbf{pranchetas} abertas;
-\item número de \textbf{participantes} conduzidos;
-\item total de \textbf{horas} em atividades oficiais na montanha.
-\end{itemize}
-
-\medskip
-
-% carrega CSV
-\DTLloaddb{estatisticas}{../data/estatisticas_tmp.csv}
-
-\begin{center}
-%\footnotesize
-\begin{tabular}{rccr}
-& \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
-\hline
-\DTLforeach{estatisticas}{
-  \g=Guia,
-  \a=Atividades,
-  \p=Participantes,
-  \h=Horas}{%
-\g & \a & \p & \h \\
-}
-\end{tabular}
-\end{center}
-
-\medskip
-
-\noindent A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza todos os guias que dedicaram seu tempo para conduzir com segurança os sócios do clube.
-
-\subsection*{Auxiliares}
-Além dos guias, muitos sócios, guias ou não, também dedicaram seu tempo a participar das atividades como \textbf{auxiliares de pranchetas}, ajudando os guias a organizar e conduzir os membros do clube nas montanhas. Abaixo listamos todos aqueles que se disponibilizaram a ajudar os nossos guias duante esse tempo. A todos vocês, a \textbf{Diretoria Técnica do CERJ}, em nome de toda a comunidade CERJense, agradece com um enorme \textbf{Muito obrigado!}
-
-\DTLloaddb{auxiliares}{../data/auxiliares_tmp.csv}
-
-\begin{center}
-%\footnotesize
-\begin{tabular}{rc}
-& \textbf{Pranchetas} \\
-\hline
-\DTLforeach{auxiliares}{
-  \g=Auxiliar,
-  \a=Atividades}{%
-\g & \a \\
-}
-\end{tabular}
-\end{center}
-
-
-\subsection*{Tipos de Atividades}
-\subsection*{Atividades por Período}
+\input{./estatisticas.tex}
 
 \par
 \vfill

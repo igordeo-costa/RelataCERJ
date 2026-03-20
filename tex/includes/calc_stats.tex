@@ -1,6 +1,8 @@
 \begin{luacode*}
 
-function gerar_estatisticas_csv(input_csv, output_csv, totais_csv, auxiliares_csv)
+-- =========================================================
+-- Funções utilitárias
+-- =========================================================
 
 -- converter data + hora
 function parse_datetime(data,hora)
@@ -22,274 +24,264 @@ function parse_datetime(data,hora)
   }
 end
 
--- Horas no formato hh:mm
--- =========================================================
--- Formatar duração para tabela (312h45)
--- =========================================================
+-- parser CSV
+function split_csv(line)
+  local res = {}
+  local pos = 1
+  while pos <= #line do
+    if line:sub(pos,pos) == '"' then
+      local first = pos+1
+      local last = line:find('"', first)
+      if not last then last = #line end
+      table.insert(res, line:sub(first,last-1))
+      pos = last + 2
+    else
+      local next = line:find(',', pos) or (#line+1)
+      table.insert(res, line:sub(pos, next-1))
+      pos = next + 1
+    end
+  end
+  for i=1,#res do
+    res[i] = res[i]:match("^%s*(.-)%s*$") or ""
+  end
+  return res
+end
+
+-- formata horas hh:mm
 function formatar_horas_tabela(horas)
   local h = math.floor(horas)
   local m = math.floor((horas - h) * 60 + 0.5)
   return string.format("%dh%02d", h, m)
 end
 
--- =========================================================
--- Formatar duração para texto (312 horas e 45 minutos)
--- =========================================================
+-- formata horas texto
 function formatar_horas_texto(horas)
   local h = math.floor(horas)
   local m = math.floor((horas - h) * 60 + 0.5)
-
-  if m == 0 then
-    return string.format("%d horas", h)
-  end
-
+  if m == 0 then return string.format("%d horas", h) end
   return string.format("%d horas e %d minutos", h, m)
 end
 
-
--- parser CSV
-function split_csv(line)
-
-  local res,pos={},1
-
-  while pos<=#line do
-    local c=line:sub(pos,pos)
-
-    if c=='"' then
-      local first=pos+1
-      local last=line:find('"',first)
-
-      while line:sub(last+1,last+1)=='"' do
-        last=line:find('"',last+2)
-      end
-
-      table.insert(res,line:sub(first,last-1))
-      pos=last+2
-
-    else
-      local next=line:find(',',pos) or (#line+1)
-      table.insert(res,line:sub(pos,next-1))
-      pos=next+1
-    end
-  end
-
-  for i=1,#res do
-    res[i]=res[i]:match("^%s*(.-)%s*$")
-  end
-
-  return res
-end
-
-
--- registrar guia
+-- registrar guias
 function registrar_guia(nome,total_part,duracao,guias)
-
   if not nome or nome=="" then return end
-
-  nome=nome:match("^%s*(.-)%s*$")
-
+  nome = nome:match("^%s*(.-)%s*$")
   if not guias[nome] then
-    guias[nome]={atividades=0,participantes=0,horas=0}
+    guias[nome] = {atividades=0, participantes=0, horas=0}
   end
-
-  guias[nome].atividades=guias[nome].atividades+1
-  guias[nome].participantes=guias[nome].participantes+total_part
-  guias[nome].horas=guias[nome].horas+duracao
-
+  guias[nome].atividades = guias[nome].atividades + 1
+  guias[nome].participantes = guias[nome].participantes + total_part
+  guias[nome].horas = guias[nome].horas + duracao
 end
 
 -- registrar auxiliares
 function registrar_aux(nome, auxiliares)
-
   if not nome or nome=="" then return end
-
-  nome=nome:match("^%s*(.-)%s*$")
-
+  nome = nome:match("^%s*(.-)%s*$")
   if not auxiliares[nome] then
-    auxiliares[nome]={atividades=0}
+    auxiliares[nome] = {atividades=0}
   end
-
-  auxiliares[nome].atividades=auxiliares[nome].atividades+1
+  auxiliares[nome].atividades = auxiliares[nome].atividades + 1
 end
 
-local file=io.open(input_csv,"r")
-if not file then
-  texio.write_nl("Erro ao abrir "..input_csv)
-  return
-end
-
-local guias={}
-local auxiliares={}
-
-local total_atividades=0
-local total_participantes=0
-local total_horas=0
-
-file:read()
-
-for line in file:lines() do
-
-  local col=split_csv(line)
-
-  local guia1=col[2]
-  local guia2=col[15]
-
-  local aux=col[3]
-
-  local participantes=col[10]
-
-  local data_ini=col[6]
-  local data_fim=col[7]
-
-  local hora_ini=col[8]
-  local hora_fim=col[14]
-
-  -- contar participantes
-  local total_part=0
-
-  if participantes and participantes~="" then
-    for nome in participantes:gmatch("[^,]+") do
-      nome=nome:match("^%s*(.-)%s*$")
-      if nome~="" then total_part=total_part+1 end
-    end
+-- contador mensal
+function contador_mensal(atividade, mensal)
+  if not atividade or not atividade.data then return end
+  local ts = parse_datetime(atividade.data, atividade.hora)
+  if not ts then return end
+  local t = os.date("*t", ts)
+  local chave = string.format("%04d-%02d", t.year, t.month)
+  if not mensal[chave] then
+    mensal[chave] = {atividades=0, participantes=0, horas=0}
   end
-
-  if aux and aux ~= "" then
-    for nome in aux:gmatch("[^,]+") do
-      nome = nome:match("^%s*(.-)%s*$")
-      registrar_aux(nome, auxiliares)
-    end
-  end
-
-  -- calcular duração
-  local inicio=parse_datetime(data_ini,hora_ini)
-
-  local fim
-  if data_fim and data_fim~="" then
-    fim=parse_datetime(data_fim,hora_fim)
-  else
-    fim=parse_datetime(data_ini,hora_fim)
-  end
-
-  local duracao=0
-  if inicio and fim then
-    duracao=(fim-inicio)/3600
-  end
-
-  -- totais gerais
-  total_atividades=total_atividades+1
-  total_participantes=total_participantes+total_part
-  total_horas=total_horas+duracao
-
-  -- registrar guias
-  registrar_guia(guia1,total_part,duracao,guias)
-
-  if guia2 and guia2~=guia1 then
-    registrar_guia(guia2,total_part,duracao,guias)
-  end
-
+  mensal[chave].atividades = mensal[chave].atividades + 1
+  mensal[chave].participantes = mensal[chave].participantes + (atividade.participantes or 0)
+  mensal[chave].horas = mensal[chave].horas + (atividade.horas or 0)
 end
 
-file:close()
-
-
--- ranking
-local ranking={}
-
-for g,d in pairs(guias) do
-  table.insert(ranking,{
-    guia=g,
-    atividades=d.atividades,
-    participantes=d.participantes,
-    horas=d.horas
-  })
-end
-
-table.sort(ranking,function(a,b)
-  if a.atividades~=b.atividades then
-    return a.atividades>b.atividades
-  elseif a.participantes~=b.participantes then
-    return a.participantes>b.participantes
-  else
-    return a.horas>b.horas
-  end
-end)
-
--- escrever CSV ranking
-local out=io.open(output_csv,"w")
-out:write("Guia,Atividades,Participantes,Horas\n")
-
-for _,item in ipairs(ranking) do
-  out:write(string.format(
-  "%s,%d,%d,%s\n",
-  item.guia,
-  item.atividades,
-  item.participantes,
-  formatar_horas_tabela(item.horas)))
-end
-
-out:close()
-
--- ranking dos auxiliares
-local aux_ranking={}
-
-for nome,dados in pairs(auxiliares) do
-  table.insert(aux_ranking,{
-    nome=nome,
-    atividades=dados.atividades
-  })
-end
-
-table.sort(aux_ranking, function(a,b)
-  return a.atividades > b.atividades
-end)
-
--- escrever CSV aux_ranking
-local out_aux=io.open(auxiliares_csv,"w")
-out_aux:write("Auxiliar,Atividades\n")
-
-for _,item in ipairs(aux_ranking) do
-  out_aux:write(string.format(
-  "%s,%d\n",
-  item.nome,
-  item.atividades))
-end
-
-out_aux:close()
-
--- escrever totais
-if totais_csv then
-  local out2=io.open(totais_csv,"w")
-  out2:write("Atividades,Participantes,Horas\n")
-  out2:write(string.format(
-  "%d,%d,%s\n",
-  total_atividades,
-  total_participantes,
-  formatar_horas_texto(total_horas)))
-  out2:close()
-end
-
-end
-
-
--- texto automático
+-- texto estatísticas totais
 function texto_estatisticas_totais(csv)
-
-  local f=io.open(csv,"r")
+  local f = io.open(csv, "r")
   if not f then
     tex.sprint("Dados estatísticos indisponíveis.")
     return
   end
-
   f:read()
-  local line=f:read()
+  local line = f:read()
   f:close()
-
-  local a,p,h=line:match("([^,]+),([^,]+),([^,]+)")
-
+  local a,p,h = line:match("([^,]+),([^,]+),([^,]+)")
   tex.sprint(string.format(
-  "Durante o período coberto por este relatório, foram realizadas \\textbf{%d} pranchetas oficiais, mobilizando \\textbf{%d} participantes e totalizando \\textbf{%s} de atividades de montanha.",
-  a,p,h))
+    "Durante o período coberto por este relatório, foram realizadas \\textbf{%d} pranchetas oficiais, mobilizando \\textbf{%d} participantes e totalizando \\textbf{%s} de atividades de montanha.",
+    a, p, h))
+end
+
+-- tipos de atividades
+function tipo_atividade(input_csv)
+  local file = io.open(input_csv, "r")
+  if not file then
+    tex.sprint("Dados de atividades indisponíveis.")
+    return
+  end
+  file:read() -- pular cabeçalho
+  local total, caminhadas, escaladas = 0,0,0
+  for line in file:lines() do
+    local col = split_csv(line)
+    local tipo = (col[5] or ""):lower():match("^%s*(.-)%s*$")
+    if tipo ~= "" then
+      total = total + 1
+      if tipo:find("caminhada") then
+        caminhadas = caminhadas + 1
+      elseif tipo:find("escalada") then
+        escaladas = escaladas + 1
+      end
+    end
+  end
+  file:close()
+  local outras = total - caminhadas - escaladas
+  tex.sprint(string.format(
+    "Dentre essas, foram realizadas \\textbf{%d} pranchetas de caminhada, \\textbf{%d} de escalada e \\textbf{%d} de outro tipo.",
+    caminhadas, escaladas, outras))
+end
+
+-- =========================================================
+-- Função principal
+-- =========================================================
+function gerar_estatisticas_csv(input_csv, output_csv, totais_csv, auxiliares_csv, mensal_csv)
+
+  local guias, auxiliares = {}, {}
+  local total_atividades, total_participantes, total_horas = 0,0,0
+  local mensal = {}
+
+  local file = io.open(input_csv, "r")
+  if not file then
+    texio.write_nl("Erro ao abrir "..input_csv)
+    return
+  end
+
+  file:read() -- pular cabeçalho
+
+  for line in file:lines() do
+    local col = split_csv(line)
+
+    local guia1, guia2 = col[2], col[15]
+    local aux = col[3]
+    local participantes = col[10]
+    local data_ini, data_fim = col[6], col[7]
+    local hora_ini, hora_fim = col[8], col[14]
+
+    -- contar participantes
+    local total_part = 0
+    if participantes and participantes~="" then
+      for nome in participantes:gmatch("[^,]+") do
+        nome = nome:match("^%s*(.-)%s*$")
+        if nome~="" then total_part = total_part+1 end
+      end
+    end
+
+    -- registrar auxiliares
+    if aux and aux~="" then
+      for nome in aux:gmatch("[^,]+") do
+        nome = nome:match("^%s*(.-)%s*$")
+        registrar_aux(nome, auxiliares)
+      end
+    end
+
+    -- calcular duração
+    local inicio = parse_datetime(data_ini,hora_ini)
+    local fim
+    if data_fim and data_fim~="" then
+      fim = parse_datetime(data_fim,hora_fim)
+    else
+      fim = parse_datetime(data_ini,hora_fim)
+    end
+
+    local duracao = 0
+    if inicio and fim then duracao = (fim-inicio)/3600 end
+
+    -- totais gerais
+    total_atividades = total_atividades + 1
+    total_participantes = total_participantes + total_part
+    total_horas = total_horas + duracao
+
+    -- registrar guias
+    registrar_guia(guia1,total_part,duracao,guias)
+    if guia2 and guia2~=guia1 then
+      registrar_guia(guia2,total_part,duracao,guias)
+    end
+
+    -- registrar na tabela mensal
+    local atividade = {data=data_ini, hora=hora_ini, participantes=total_part, horas=duracao}
+    contador_mensal(atividade, mensal)
+  end
+
+  file:close()
+
+  -- escrever CSV ranking guias
+  local ranking = {}
+  for g,d in pairs(guias) do
+    table.insert(ranking,{guia=g, atividades=d.atividades, participantes=d.participantes, horas=d.horas})
+  end
+  table.sort(ranking,function(a,b)
+    if a.atividades ~= b.atividades then return a.atividades>b.atividades end
+    if a.participantes ~= b.participantes then return a.participantes>b.participantes end
+    return a.horas>b.horas
+  end)
+  local out = io.open(output_csv,"w")
+  out:write("Guia,Atividades,Participantes,Horas\n")
+  for _,item in ipairs(ranking) do
+    out:write(string.format("%s,%d,%d,%s\n", item.guia, item.atividades, item.participantes, formatar_horas_tabela(item.horas)))
+  end
+  out:close()
+
+  -- escrever CSV auxiliares
+  local aux_ranking = {}
+  for nome,dados in pairs(auxiliares) do
+    table.insert(aux_ranking,{nome=nome, atividades=dados.atividades})
+  end
+  table.sort(aux_ranking,function(a,b) return a.atividades>b.atividades end)
+  local out_aux = io.open(auxiliares_csv,"w")
+  out_aux:write("Auxiliar,Atividades\n")
+  for _,item in ipairs(aux_ranking) do
+    out_aux:write(string.format("%s,%d\n", item.nome, item.atividades))
+  end
+  out_aux:close()
+
+  -- escrever totais
+  if totais_csv then
+    local out2 = io.open(totais_csv,"w")
+    out2:write("Atividades,Participantes,Horas\n")
+    out2:write(string.format("%d,%d,%s\n", total_atividades, total_participantes, formatar_horas_texto(total_horas)))
+    out2:close()
+  end
+
+  -- escrever CSV mensal
+  if mensal_csv then
+    local out_mes = io.open(mensal_csv,"w")
+    if out_mes then
+      out_mes:write("Mes,Atividades,Participantes,Horas\n")
+
+      -- coleta as chaves
+      local chaves = {}
+      for mes in pairs(mensal) do
+        table.insert(chaves, mes)
+      end
+
+      -- ordena (YYYY-MM já ordena cronologicamente)
+      table.sort(chaves)
+
+      -- percorre ordenado
+      for _, mes in ipairs(chaves) do
+        local info = mensal[mes]
+        out_mes:write(string.format("%s,%d,%d,%s\n",
+          mes,
+          info.atividades,
+          info.participantes,
+          formatar_horas_tabela(info.horas)))
+      end
+
+      out_mes:close()
+    end
+  end
 
 end
 

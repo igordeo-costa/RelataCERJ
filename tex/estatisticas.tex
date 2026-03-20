@@ -1,0 +1,114 @@
+\section*{Estatísticas}
+\thispagestyle{empty} % Garante página sem rodapé
+\addcontentsline{toc}{section}{Estatísticas}
+
+% chama o Lua para gerar CSV
+\directlua{
+gerar_estatisticas_csv(
+"../data/DadosBrutos_tmp.csv",
+"../data/estatisticas_tmp.csv",
+"../data/totais_tmp.csv",
+"../data/auxiliares_tmp.csv",
+"../data/estatisticas_mensal_tmp.csv"
+)
+}
+
+%%% Carregar CSV
+\DTLloaddb{mensal}{../data/estatisticas_mensal_tmp.csv}
+\DTLloaddb{estatisticas}{../data/estatisticas_tmp.csv}
+\DTLloaddb{auxiliares}{../data/auxiliares_tmp.csv}
+
+%%% Escreve o texto inicial com as estatísticas gerais do período
+\noindent\directlua{
+texto_estatisticas_totais("../data/totais_tmp.csv")
+tex.sprint(" ")
+tipo_atividade("\detokenize{../data/DadosBrutos_tmp.csv}")
+}
+
+\noindent A tabela a seguir apresenta um resumo das atividades oficiais do clube durante o período
+coberto por este documento. Foram considerados três indicadores: (i) a quantidade de \textbf{pranchetas} abertas; (ii) número de \textbf{participantes} conduzidos; e (iii) o total de \textbf{horas} em atividades oficiais na montanha.
+
+\medskip
+\begin{multicols}{2}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{rccr}
+\textbf{Mês} & \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
+\hline
+\DTLforeach{mensal}{
+  \mes=Mes,
+  \atividades=Atividades,
+  \participantes=Participantes,
+  \horas=Horas}{%
+  \mes & \atividades & \participantes & \horas \\
+}
+\end{tabular}
+\end{center}
+
+\columnbreak
+
+\begin{center}
+\begin{tikzpicture}[scale=0.6]
+
+  \begin{axis}[
+    ybar, bar width=18pt,
+    axis lines=left,
+    ymin=0,
+    symbolic x coords={2026-01,2026-02,2026-03},
+    title={Pranchetas por Mês},
+    xtick=data,
+    enlarge x limits=0.1, enlarge y limits={upper, value=0.1}
+    ]
+    \addplot[
+    fill=azulescuro,
+    draw=azulescuro
+    ] table[
+    col sep=comma,
+    x=Mes, y=Atividades
+    ] {../data/estatisticas_mensal_tmp.csv};
+  \end{axis}
+
+\end{tikzpicture}
+\end{center}
+
+\end{multicols}
+
+\subsection*{Guias e Auxiliares}
+\noindent A seguir seguem as estatísticas dos guias do clube em pranchetas oficiais. A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza a todos por dedicarem seu tempo para conduzir com segurança os sócios do CERJ.
+
+\medskip
+
+\begin{center}
+\footnotesize
+\begin{tabular}{rccr}
+& \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
+\hline
+\DTLforeach{estatisticas}{
+  \g=Guia,
+  \a=Atividades,
+  \p=Participantes,
+  \h=Horas}{%
+\g & \a & \p & \h \\
+}
+\end{tabular}
+\end{center}
+
+\medskip
+
+\noindent Além dos guias, muitos sócios, guias ou não, também dedicaram seu tempo a participar das atividades como \textbf{auxiliares de pranchetas}, ajudando os guias a organizar e conduzir os membros do clube nas montanhas. A \textbf{Diretoria Técnica do CERJ} agradece a todos e todas pela colaboração.
+
+\medskip
+
+\begin{center}
+\footnotesize
+\begin{tabular}{rc}
+& \textbf{Pranchetas} \\
+\hline
+\DTLforeach{auxiliares}{
+  \g=Auxiliar,
+  \a=Atividades}{%
+\g & \a \\
+}
+\end{tabular}
+\end{center}
