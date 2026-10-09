@@ -36,7 +36,7 @@ RelataCERJ/
 │   ├── aesthetics.tex
 │   ├── calc_duracao.tex
 │   ├── calc_participantes.tex
-│   └── calc_trimestre.tex
+│   ├── calc_trimestre.tex
 │   └── normalize_breaklines.tex
 ├── img/
 │   ├── logo.png
