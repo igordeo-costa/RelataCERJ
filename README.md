@@ -25,7 +25,8 @@ A ideia central é: **editou o CSV → executou o script → relatório atualiza
 RelataCERJ/
 ├── scripts/
 │   ├── compile_relatorio.sh
-│   └── compile_relatorio_complexo.sh
+│   ├── compile_relatorio_complexo.sh
+│   └── ordena_python.py
 ├── tex/
 │   ├── gerador.tex
 │   └── capa.tex
@@ -54,8 +55,8 @@ RelataCERJ/
 - `compile_relatorio_complexo.sh`
   Script que ativa um modo mais detalhado do relatório (via flags no LaTeX). Este script gera relatórios que exibem um campo específico do CSV em que o guia insere informações confidenciais, que podem ser lidas exclusivamente pela Diretoria Técnica (ou pessoas escolhidas por ela). O PDF final gerado por este script é criptogrado e só pode ser aberto via senha, definida quando da compilação do relatório confidencial.
 
-- `ordenar_participantes.sh`
-  Script para normalização da lista de participantes, garantindo a ordem alfabética.
+- `ordena_python.py`
+  Script para normalização da lista de participantes, garantindo a ordem alfabética. Ainda não incorporado ao scripts principais. É preciso rodar primeiro a ordenação de participantes nos Dados Brutos e com a saída deste rodar o resto do compilador.
 
 ### 📄 tex/
   - `gerador.tex`
