@@ -96,7 +96,9 @@ os.remove(tmp)
     \begin{multicols}{3}
       \raggedright
       \noindent
-      \StrSubstitute{#1}{, }{\\}%
+      \hangindent=6pt
+      \hangafter=1
+      \StrSubstitute{#1}{, }{\par\hangindent=8pt\hangafter=1 }%
     \end{multicols}
   \end{minipage}%
 }
@@ -109,6 +111,7 @@ os.remove(tmp)
 
 %%% Cor do título na capa
 \definecolor{azulescuro}{RGB}{0,51,102}
+\definecolor{azulclaro}{RGB}{80,130,170}
 
 %%% -----------------------------------------------------------------------
 %%% Contador do número do relatório
@@ -139,9 +142,11 @@ os.remove(tmp)
 \clearpage
 
 %%% Sumário
+{
+\pagestyle{empty} % Garante páginas do sumário sem rodapé
 \tableofcontents
-\thispagestyle{empty} % Garante página do sumário sem rodapé
 \clearpage
+}
 \pagenumbering{arabic}
 \clearpage
 \setcounter{page}{1}

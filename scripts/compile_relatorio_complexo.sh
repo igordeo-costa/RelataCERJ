@@ -35,48 +35,15 @@ command -v gawk >/dev/null || {
 : "${PDF_PASSWORD:?Defina a variável de ambiente PDF_PASSWORD com a senha do PDF}"
 
 # ─────────────────────────────────────
-# Preparação
-# ─────────────────────────────────────
-mkdir -p "$BUILD_DIR"
-
-echo "Normalizando lista de participantes..."
-
-ORDENADOR="$SCRIPT_DIR/ordenar_participantes.sh"
-
-if [[ ! -f "$ORDENADOR" ]]; then
-  echo "Erro: ordenar_participantes.sh não encontrado em $ORDENADOR"
-  exit 1
-fi
-
-# garante permissão
-chmod +x "$ORDENADOR" 2>/dev/null || true
-
-# Cria arquivo temporário no diretório build (que é gravável)
-TMP_CSV="$BUILD_DIR/tmp_csv_relatorio.csv"
-
-rm -f "$TMP_CSV"
-
-if ! bash "$ORDENADOR" "$CSV" > "$TMP_CSV"; then
-  echo "Erro na execução do ordenador"
-  exit 1
-fi
-
-# Verifica se o arquivo temporário não está vazio
-if [[ ! -s "$TMP_CSV" ]]; then
-  echo "Erro: ordenador produziu arquivo vazio"
-  rm -f "$TMP_CSV"
-  exit 1
-fi
-
-echo "Gerando relatório..."
-
-# ─────────────────────────────────────
 # Traps
 # ─────────────────────────────────────
 TMP_CSV=""
 trap '
   [[ -n "${TMP_CSV:-}" && -f "$TMP_CSV" ]] && rm -f "$TMP_CSV"
   [[ -f "'"$GERADOR"'.bak" ]] && mv "'"$GERADOR"'.bak" "'"$GERADOR"'"
+  
+  # Remove arquivos temporários da pasta data
+  find "'"$ROOT_DIR/data"'" -maxdepth 1 -type f -name "*_tmp.csv" -delete
 ' EXIT
 
 # ─────────────────────────────────────

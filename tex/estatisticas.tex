@@ -51,22 +51,72 @@ coberto por este documento. Foram considerados três indicadores: (i) a quantida
 \begin{center}
 \begin{tikzpicture}[scale=0.6]
 
+  % Eixo principal — Atividades
   \begin{axis}[
-    ybar, bar width=18pt,
+    ybar,
+    bar width=18pt,
     axis lines=left,
     ymin=0,
-    symbolic x coords={2026-01,2026-02,2026-03},
-    title={Pranchetas por Mês},
+    symbolic x coords={
+      2026-01,2026-02,2026-03,2026-04,2026-05,
+      2026-06,2026-07,2026-08,2026-09
+    },
+    title={Atividades e Participantes -- 2026},
     xtick=data,
-    enlarge x limits=0.1, enlarge y limits={upper, value=0.1}
-    ]
+    enlarge x limits=0.1,
+    enlarge y limits={upper, value=0.1},
+    x tick label style={
+      rotate=45,
+      anchor=east
+    },
+    ylabel={Atividades}
+  ]
+
+    % Barras de atividades
     \addplot[
-    fill=azulescuro,
-    draw=azulescuro
+      fill=azulescuro,
+      draw=white
     ] table[
-    col sep=comma,
-    x=Mes, y=Atividades
+      col sep=comma,
+      x=Mes,
+      y=Atividades
     ] {../data/estatisticas_mensal_tmp.csv};
+
+  \end{axis}
+
+
+  % Segundo eixo — Participantes
+  \begin{axis}[
+    axis y line*=right,
+    axis x line=none,
+    ymin=0,
+    symbolic x coords={
+      2026-01,2026-02,2026-03,2026-04,2026-05,
+      2026-06,2026-07,2026-08,2026-09
+    },
+    xtick=\empty,
+    enlarge x limits=0.1,
+    enlarge y limits={upper, value=0.1},
+    ylabel={Participantes},
+    yticklabel style={azulclaro},
+    y axis line style={azulclaro},
+    ylabel style={azulclaro},
+  ]
+
+    % Linha de participantes
+    \addplot[
+      azulclaro,
+      very thick,
+      smooth,
+      tension=0.7,
+      mark=*,
+      mark options={fill=azulclaro}
+    ] table[
+      col sep=comma,
+      x=Mes,
+      y=Participantes
+    ] {../data/estatisticas_mensal_tmp.csv};
+
   \end{axis}
 
 \end{tikzpicture}
@@ -77,12 +127,17 @@ coberto por este documento. Foram considerados três indicadores: (i) a quantida
 \subsection*{Guias e Auxiliares}
 \noindent A seguir seguem as estatísticas dos guias do clube em pranchetas oficiais. A \textbf{Diretoria Técnica do CERJ} agradece e parabeniza a todos por dedicarem seu tempo para conduzir com segurança os sócios do CERJ.
 
+Além dos guias, muitos sócios, guias ou não, também dedicaram seu tempo a participar das atividades como \textbf{auxiliares de pranchetas}, ajudando os guias a organizar e conduzir os membros do clube nas montanhas. A \textbf{Diretoria Técnica do CERJ} agradece a todos e todas pela colaboração.
+
 \medskip
 
-\begin{center}
+\noindent
+\begin{minipage}[t]{0.68\textwidth}
+\vspace{0pt}
+\centering
 \footnotesize
 \begin{tabular}{rccr}
-& \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
+\textbf{Guias} & \textbf{Pranchetas} & \textbf{Participantes} & \textbf{Horas} \\
 \hline
 \DTLforeach{estatisticas}{
   \g=Guia,
@@ -92,18 +147,15 @@ coberto por este documento. Foram considerados três indicadores: (i) a quantida
 \g & \a & \p & \h \\
 }
 \end{tabular}
-\end{center}
 
-\medskip
-
-\noindent Além dos guias, muitos sócios, guias ou não, também dedicaram seu tempo a participar das atividades como \textbf{auxiliares de pranchetas}, ajudando os guias a organizar e conduzir os membros do clube nas montanhas. A \textbf{Diretoria Técnica do CERJ} agradece a todos e todas pela colaboração.
-
-\medskip
-
-\begin{center}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.28\textwidth}
+\vspace{0pt}
+\centering
 \footnotesize
 \begin{tabular}{rc}
-& \textbf{Pranchetas} \\
+\textbf{Auxiliares} & \textbf{Pranchetas} \\
 \hline
 \DTLforeach{auxiliares}{
   \g=Auxiliar,
@@ -111,4 +163,5 @@ coberto por este documento. Foram considerados três indicadores: (i) a quantida
 \g & \a \\
 }
 \end{tabular}
-\end{center}
+
+\end{minipage}

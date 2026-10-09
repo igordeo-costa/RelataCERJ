@@ -41,6 +41,9 @@ TMP_CSV=""
 trap '
   [[ -n "${TMP_CSV:-}" && -f "$TMP_CSV" ]] && rm -f "$TMP_CSV"
   [[ -f "'"$GERADOR"'.bak" ]] && mv "'"$GERADOR"'.bak" "'"$GERADOR"'"
+  
+  # Remove arquivos temporários da pasta data
+  find "'"$ROOT_DIR/data"'" -maxdepth 1 -type f -name "*_tmp.csv" -delete
 ' EXIT
 
 # ─────────────────────────────────────
